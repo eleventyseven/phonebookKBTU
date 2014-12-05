@@ -10,7 +10,7 @@ import java.util.Date;
 
 /**
  *
- * @author KKK
+ * @author KBTU
  */
 public class Contact {
     private Long id;
