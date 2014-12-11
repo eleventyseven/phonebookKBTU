@@ -19,7 +19,7 @@ import oracle.jdbc.pool.OracleDataSource;
 
 /**
  *
- * @author KKK
+ * @author Madi
  */
 public class DB {
 
