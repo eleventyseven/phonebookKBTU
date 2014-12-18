@@ -19,14 +19,14 @@ import oracle.jdbc.pool.OracleDataSource;
 
 /**
  *
- * @author Madi
+ * @author KKK
  */
 public class DB {
 
     private static String dbName = "phonebook";
     private static String userid = "phonebook";
     private static String password = "book";
-    private static String jdbcUrl = "jdbc:oracle:thin:@localhost:1521:ORCL";
+    private static String jdbcUrl = "jdbc:oracle:thin:@172.16.92.216:1521:ORCL";
 
     /**
      * Open connection to database
@@ -207,7 +207,7 @@ public class DB {
      *
      * @return List of contacts
      */
-    public List<Contact> getContacts() {
+    public static List<Contact> getContacts() {
         Connection conn = null;
         Statement stmt = null;
         List<Contact> result = new ArrayList<Contact>();

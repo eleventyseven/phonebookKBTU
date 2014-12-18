@@ -84,7 +84,6 @@ public class MyVaadinUI extends UI {
     /**
      * Initialize main window
      */
-    
     private void initLayout() {
         contactContainer = fillTable();
         VerticalLayout layout = new VerticalLayout();

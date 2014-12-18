@@ -1,4 +1,8 @@
-
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package kz.test.phonebook;
 
 import com.vaadin.data.Item;
@@ -34,7 +38,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
-
+/**
+ *
+ * @author KKK
+ */
 public class InputFormWindow extends Window {
 
     private Button save;
@@ -179,6 +186,7 @@ public class InputFormWindow extends Window {
         } catch (ParseException ex) {
             Logger.getLogger(InputFormWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         nameField.setValue(item.getItemProperty(MyVaadinUI.NAME).getValue() != null ? item.getItemProperty(MyVaadinUI.NAME).getValue().toString() : "");
         surnameField.setValue(item.getItemProperty(MyVaadinUI.SURNAME).getValue() != null ? item.getItemProperty(MyVaadinUI.SURNAME).getValue().toString() : "");
         patronomycField.setValue(item.getItemProperty(MyVaadinUI.PATRONOMYC).getValue() != null ? item.getItemProperty(MyVaadinUI.PATRONOMYC).getValue().toString() : "");
@@ -225,8 +233,8 @@ public class InputFormWindow extends Window {
             }
             return fos;
         }
-
 // if succeeded then change the avatar, and save to temp, after clicking save will commit to database
+
         public void uploadSucceeded(SucceededEvent event) {
             image.setIcon(new FileResource(file));
             try {
