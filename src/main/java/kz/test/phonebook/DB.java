@@ -26,7 +26,7 @@ public class DB {
     private static String dbName = "phonebook";
     private static String userid = "phonebook";
     private static String password = "book";
-    private static String jdbcUrl = "jdbc:oracle:thin:@172.16.92.216:1521:ORCL";
+    private static String jdbcUrl = "jdbc:oracle:thin:@localhost:1521:ORCL";
 
     /**
      * Open connection to database
@@ -62,7 +62,9 @@ public class DB {
         try {
             conn = getConnection();
 
-            proc = conn.prepareCall("{ call PHONEBOOK.INSERT_CONTACT(?,?,?,?,?,?,?) }");
+            proc = conn.prepareCall("INSERT INTO PHONEBOOK.CONTACT (ID,\"NAME\", SURNAME, PATRONOMYC, BIRTHDATE, ADDRESS, TELEPHONE, PHOTO) \n"
+                    + "	VALUES (CONTACT_SEQ.nextval, ?, ?, ?, ?, ?, ?, ?)\n"
+                    + "");
             proc.setString(1, name);
             proc.setString(2, surname);
             proc.setString(3, patronomyc);
@@ -86,6 +88,46 @@ public class DB {
         }
     }
 
+    public static Contact getContactByNameAndSurname(String name, String surname) {
+        Connection conn = null;
+        CallableStatement proc = null;
+
+        try {
+            conn = getConnection();
+
+            proc = conn.prepareCall("SELECT ID, NAME, SURNAME, PATRONOMYC, BIRTHDATE, ADDRESS, TELEPHONE FROM CONTACT"
+                    + " WHERE NAME = ? AND SURNAME = ?");
+            proc.setString(1, name);
+            proc.setString(2, surname);
+            ResultSet rs = proc.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+            Contact contact = new Contact();
+            contact.setId(rs.getLong(1));
+            contact.setName(rs.getString(2));
+            contact.setSurname(rs.getString(3));
+            contact.setPatronomyc(rs.getString(4));
+            contact.setBirthdate(rs.getDate(5));
+            contact.setAddress(rs.getString(6));
+            contact.setTelephone(rs.getString(7));
+            return contact;
+        } catch (Exception ex) {
+            Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                proc.close();
+            } catch (SQLException e) {
+            }
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return null;
+    }
+
     /**
      * Update contact with the given id, using stored procedure in database
      *
@@ -107,15 +149,16 @@ public class DB {
         try {
             conn = getConnection();
 
-            proc = conn.prepareCall("{ call PHONEBOOK.UPDATE_CONTACT(?,?,?,?,?,?,?,?) }");
-            proc.setLong(1, id);
-            proc.setString(2, name);
-            proc.setString(3, surname);
-            proc.setString(4, patronomyc);
-            proc.setDate(5, birthdate != null ? new Date(birthdate.getTime()) : null);
-            proc.setString(6, address);
-            proc.setString(7, telephone);
-            proc.setBytes(8, image);
+            proc = conn.prepareCall("UPDATE CONTACT SET NAME = ?, SURNAME = ?, PATRONOMYC = ?, BIRTHDATE = ?, ADDRESS = ?, TELEPHONE = ?, PHOTO = ? \n"
+                    + "	WHERE ID = ?");
+            proc.setString(1, name);
+            proc.setString(2, surname);
+            proc.setString(3, patronomyc);
+            proc.setDate(4, birthdate != null ? new Date(birthdate.getTime()) : null);
+            proc.setString(5, address);
+            proc.setString(6, telephone);
+            proc.setBytes(7, image);
+            proc.setLong(8, id);
             proc.execute();
         } catch (Exception ex) {
             Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
@@ -164,6 +207,32 @@ public class DB {
         }
     }
 
+    public static void deleteAllContacts() {
+        Connection conn = null;
+        CallableStatement proc = null;
+
+        try {
+            conn = getConnection();
+
+//            proc = conn.prepareCall("DELETE FROM CONTACT");
+            Statement statement = conn.createStatement();
+            statement.execute("DELETE FROM CONTACT where ID > 0");
+//            proc.execute();
+        } catch (Exception ex) {
+            Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+//            try {
+//                proc.close();
+//            } catch (SQLException e) {
+//            }
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
     /**
      * Get the photo of the contact according to the given id, using stored
      * procedure in database
@@ -179,11 +248,14 @@ public class DB {
         try {
             conn = getConnection();
 
-            proc = conn.prepareCall("{call get_photo(?, ?) }");
+            proc = conn.prepareCall("SELECT PHOTO FROM CONTACT WHERE ID = ?");
             proc.setLong(1, id);
-            proc.registerOutParameter(2, java.sql.Types.BLOB);
             proc.execute();
-            byte[] bytes = proc.getBytes(2);
+            ResultSet rs = proc.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+            byte[] bytes = rs.getBytes(1);
             return bytes;
         } catch (Exception ex) {
             Logger.getLogger(DB.class.getName()).log(Level.SEVERE, null, ex);
@@ -207,7 +279,7 @@ public class DB {
      *
      * @return List of contacts
      */
-    public static List<Contact> getContacts() {
+    public static List<Contact> getAllContacts() {
         Connection conn = null;
         Statement stmt = null;
         List<Contact> result = new ArrayList<Contact>();

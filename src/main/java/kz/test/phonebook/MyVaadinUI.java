@@ -318,7 +318,7 @@ public class MyVaadinUI extends UI {
         }
 
         DB db = new DB();
-        List<Contact> contacts = db.getContacts();
+        List<Contact> contacts = db.getAllContacts();
         for (Contact c : contacts) {
             Object id = ic.addItem();
             ic.getContainerProperty(id, ID).setValue(c.getId());
