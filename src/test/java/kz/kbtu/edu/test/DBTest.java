@@ -94,8 +94,4 @@ public class DBTest extends TestCase {
         assertEquals(0, DB.getAllContacts().size());
     }
 
-    public void failureTest() {
-        assertNull("asdasd");
-    }
-
 }
